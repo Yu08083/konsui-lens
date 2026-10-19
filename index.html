@@ -1,0 +1,72 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="theme-color" content="#f7f6f3">
+  <meta name="description" content="妖怪ウォッチ2のふしぎなレンズ。妖怪・お題・報酬を検索して、撮影用の画像を表示します。">
+  <title>不思議スギ！昏睡レンズ！</title>
+  <link rel="stylesheet" href="./style.css">
+  <script src="./face-generator.js" defer></script>
+  <script src="./lens-search.js" defer></script>
+  <script src="./lens-activities.js" defer></script>
+  <script src="./app.js?v=20261019-images" defer></script>
+</head>
+<body>
+  <a class="skip-link" href="#main">本文へ</a>
+  <header class="site-header">
+    <div class="site-header-inner"><div class="site-heading"><h1 class="brand">不思議スギ！昏睡レンズ！</h1><p class="site-subtitle"><span id="game-title">妖怪ウォッチ2 元祖/本家/真打</span><br>ふしぎのレンズ</p></div><button type="button" class="text-button" id="about-button">使い方</button></div>
+  </header>
+  <main id="main">
+    <div class="profile-picker" id="profile-picker" hidden><label for="profile-select">ゲームの版</label><select id="profile-select"></select></div>
+    <div class="workspace">
+      <div class="selector-column">
+        <section class="card daily-panel" id="daily-mission" aria-labelledby="today-heading" hidden>
+          <div class="card-heading"><h2 id="today-heading">今日のお題</h2></div>
+          <p class="small-label" id="daily-date"></p><p id="daily-title" class="daily-title"></p><p id="daily-reward" class="daily-reward"></p>
+          <button type="button" class="text-button" id="daily-find" hidden>該当する妖怪を見る</button>
+          <div class="clock-field"><label for="game-clock">3DSの日時</label><input type="datetime-local" id="game-clock" min="2000-01-01T00:00" max="2099-12-31T23:59" step="60" aria-describedby="clock-help clock-status"><button type="button" class="text-button" id="clock-now">現在の日時を使う</button><p class="field-help" id="clock-help">午前6時に切替。3DS本体の日時に合わせてください。</p><p id="clock-status" class="field-help" role="status"></p></div>
+        </section>
+        <section class="card search-panel" id="catalog" aria-labelledby="catalog-title">
+          <div class="card-heading"><h2 id="catalog-title">検索</h2><span class="small-label" id="match-count" aria-live="polite"></span></div>
+          <label class="visually-hidden" for="target-search">妖怪名・お題・報酬</label><input type="search" id="target-search" placeholder="妖怪名・お題・報酬" autocomplete="off" disabled>
+          <div class="search-scopes" role="group" aria-label="検索するもの"><button type="button" data-scope="all" aria-pressed="true">すべて</button><button type="button" data-scope="yokai" aria-pressed="false">妖怪</button><button type="button" data-scope="missions" aria-pressed="false">お題</button><button type="button" data-scope="rewards" aria-pressed="false">報酬</button></div>
+          <select id="tribe-filter" aria-label="種族" hidden disabled><option value="">すべて</option></select>
+          <div class="mission-filter" id="mission-filter" hidden><span id="mission-filter-label"></span><button type="button" id="clear-mission" class="text-button">解除</button></div>
+          <div class="search-results">
+            <div class="target-grid" id="target-grid" aria-label="妖怪の一覧"></div>
+            <section class="activity-results" id="mission-results" aria-labelledby="mission-results-title" hidden><h3 id="mission-results-title">お題</h3><div id="mission-list" class="activity-list"></div></section>
+            <section class="activity-results" id="reward-results" aria-labelledby="reward-results-title" hidden><h3 id="reward-results-title">報酬と条件</h3><div id="reward-list" class="activity-list"></div></section>
+          </div>
+          <button type="button" id="load-more" class="button secondary load-more" hidden>さらに表示</button>
+          <div class="catalog-empty" id="catalog-empty" hidden><h3 id="empty-title">データを読み込み中</h3><p id="empty-copy"></p><button type="button" id="clear-filters" class="text-button" hidden>絞り込みを解除</button></div>
+        </section>
+      </div>
+      <section class="card preview-panel" aria-labelledby="selected-name">
+        <div class="card-heading"><h2 id="selected-name">妖怪を選択</h2></div>
+        <div class="face-view" id="face-view"><p class="face-empty">一覧から妖怪を選択してください。</p></div>
+        <div class="candidate-pager" aria-label="画像の切替"><button type="button" id="previous-face" class="button secondary" disabled>前へ</button><span id="frame-index" aria-live="polite">— / —</span><button type="button" id="next-face" class="button secondary" disabled>次へ</button></div>
+        <div class="preview-actions"><button type="button" id="open-viewer" class="button primary" disabled>拡大表示</button><button type="button" id="download-face" class="button secondary" disabled>画像保存</button></div>
+        <p id="preview-help" class="warning" role="status" hidden></p>
+        <section class="conditions-panel" aria-labelledby="conditions-title"><h3 id="conditions-title">表示条件</h3><span id="condition-status" hidden></span><div id="condition-content"></div></section>
+        <section class="rewards-panel" aria-labelledby="rewards-title"><h3 id="rewards-title">報酬</h3><div id="selected-rewards"></div></section>
+      </section>
+    </div>
+  </main>
+  <dialog id="viewer-dialog" class="viewer-dialog" aria-labelledby="viewer-title">
+    <div class="dialog-heading"><h2 id="viewer-title">撮影用の画像</h2><button type="button" class="icon-button" id="close-viewer" aria-label="拡大表示を閉じる">×</button></div>
+    <div id="viewer-face" class="viewer-face"></div><p id="viewer-caption" class="warning" hidden></p>
+    <div id="viewer-guide-controls" class="viewer-guide-controls" hidden><label for="viewer-guide-toggle"><input type="checkbox" id="viewer-guide-toggle" disabled>3DS画面に合わせる目安</label></div>
+    <p id="viewer-guide-help" class="field-help" hidden></p>
+    <div class="viewer-toolbar"><button type="button" class="button secondary" id="viewer-previous" disabled>前へ</button><button type="button" class="button primary" id="viewer-fullscreen">全画面にする</button><button type="button" class="button secondary" id="viewer-next" disabled>次へ</button></div><p id="viewer-note" class="field-help"></p>
+  </dialog>
+  <dialog id="about-dialog" class="about-dialog" aria-labelledby="about-title">
+    <div class="dialog-heading"><h2 id="about-title">使い方</h2><button type="button" class="icon-button" id="close-about" aria-label="使い方を閉じる">×</button></div>
+    <ol><li>妖怪名・お題・報酬で検索し、妖怪を選びます。読み方や表記ゆれでも検索できます。</li><li>「拡大表示」で画像を3DSに向けます。位置を合わせ、数秒待ってから撮影してください。</li><li>お題や種類数の条件を達成すると、こやぎ郵便で報酬を受け取れます。</li></ol>
+    <p>今日のお題は、入力した3DSの日時で午前6時に切り替わります。登録条件がある妖怪は、画像の下に条件を表示します。</p>
+    <p>元の判定処理を使った模擬撮影の結果を掲載しています。顔画像は解析上の候補です。照明や大きさで別の妖怪になることがあります。3DSで画面を撮影した結果は未確認です。</p>
+    <p id="about-data-note"></p><p id="source-details"></p><small id="updated-at"></small>
+  </dialog>
+  <div class="toast" id="toast" role="status" aria-live="polite" hidden></div>
+</body>
+</html>
